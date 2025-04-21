@@ -20,6 +20,8 @@ func main() {
 		Use:              "runm",
 		Short:            "runm is a container runtime wrapper",
 		TraverseChildren: true,
+		SilenceErrors:    true,
+		SilenceUsage:     true,
 	}
 
 	// Define root flags
@@ -40,8 +42,10 @@ func main() {
 	}
 
 	runcCmd := exec.Command(runc, runcArgs...)
+	runcCmd.Stdout = os.Stdout
+	runcCmd.Stderr = os.Stderr
 	kmsglog.InfoF("Running runc %v", append([]string{runc}, runcArgs...))
 	if err := runcCmd.Run(); err != nil {
-		kmsglog.ErrorF("Failed to run runc: %v", err)
+		kmsglog.WarnF("Failed to run runc. If it is a checkpoint restoring, just ignore it")
 	}
 }

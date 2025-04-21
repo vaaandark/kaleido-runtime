@@ -1,5 +1,6 @@
 package types
 
 const (
-	MigrationAnnotation = "kaleido.github.io/migration"
+	MigrationAnnotation = "kaleido.io/migration"
+	SourcePodAnnotation = "kaleido.io/source-pod"
 )

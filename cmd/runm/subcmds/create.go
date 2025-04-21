@@ -33,10 +33,25 @@ func NewCreateCommand() *cobra.Command {
 			kmsglog.InfoF("subcommand flags: bundle=%s, console-socket=%s, pid-file=%s, no-pivot=%t, no-new-keyring=%t, preserve-fds=%d",
 				bundle, consoleSocket, pidFile, noPivot, noNewKeyring, preserveFds)
 
-			should := migration.ShouldMigrateByBundle(bundle)
-			kmsglog.InfoF("should migrate: %t", should)
+			containerInfo := migration.NewContainerInfo(args[len(args)-1], bundle, root)
+			migration, shouldMigrate, err := migration.NewMigration(containerInfo)
+			if err != nil {
+				return err
+			}
+			if !shouldMigrate {
+				return fmt.Errorf("container %s need not to be migrated", containerInfo.Id)
+			}
 
-			return fmt.Errorf(`"create" is not implemented yet`)
+			kmsglog.InfoF("containerInfo: %+v", containerInfo)
+			kmsglog.InfoF("migration: %+v", migration)
+			kmsglog.InfoF("should migrate: %t", shouldMigrate)
+
+			if err := migration.Restore(); err != nil {
+				kmsglog.InfoF("Failed to restore container %s: %v", containerInfo.Id, err)
+				return err
+			}
+
+			return nil
 		},
 	}
 
