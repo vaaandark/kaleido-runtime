@@ -1,4 +1,4 @@
-module github.com/vaaandark/kaleido
+module github.com/vaaandark/kaleido-runtime
 
 go 1.24.1
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/vaaandark/kaleido/pkg/kmsglog"
-	"github.com/vaaandark/kaleido/pkg/runm/migration"
+	"github.com/vaaandark/kaleido-runtime/pkg/kmsglog"
+	"github.com/vaaandark/kaleido-runtime/pkg/runm/migration"
 )
 
 func NewCreateCommand() *cobra.Command {

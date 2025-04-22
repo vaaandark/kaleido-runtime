@@ -5,8 +5,8 @@ import (
 	"os/exec"
 
 	"github.com/spf13/cobra"
-	"github.com/vaaandark/kaleido/cmd/runm/subcmds"
-	"github.com/vaaandark/kaleido/pkg/kmsglog"
+	"github.com/vaaandark/kaleido-runtime/cmd/runm/subcmds"
+	"github.com/vaaandark/kaleido-runtime/pkg/kmsglog"
 )
 
 const (

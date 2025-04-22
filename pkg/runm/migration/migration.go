@@ -8,10 +8,10 @@ import (
 	"regexp"
 
 	"github.com/opencontainers/runtime-spec/specs-go"
-	"github.com/vaaandark/kaleido/pkg/kmsglog"
-	"github.com/vaaandark/kaleido/pkg/runm/migration/criu"
-	"github.com/vaaandark/kaleido/pkg/runtimeutils"
-	"github.com/vaaandark/kaleido/pkg/types"
+	"github.com/vaaandark/kaleido-runtime/pkg/kmsglog"
+	"github.com/vaaandark/kaleido-runtime/pkg/runm/migration/criu"
+	"github.com/vaaandark/kaleido-runtime/pkg/runtimeutils"
+	"github.com/vaaandark/kaleido-runtime/pkg/types"
 )
 
 const (
