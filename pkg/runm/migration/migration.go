@@ -111,12 +111,12 @@ func loadRuntimeSpecFromBundle(bundle string) (*specs.Spec, error) {
 	return runtimeutils.LoadRuntimeSpec(path)
 }
 
-func (m Migration) criuRoot() string {
+func (m Migration) CriuRoot() string {
 	return containerCheckpointPath(m.SourcePodUid, m.ContainerName)
 }
 
 func (m Migration) Checkpoint() error {
-	criuRoot := m.criuRoot()
+	criuRoot := m.CriuRoot()
 	var args []string
 	for _, arg := range os.Args[1 : len(os.Args)-1] {
 		if arg == "kill" {
@@ -140,7 +140,7 @@ func (m Migration) Checkpoint() error {
 }
 
 func (m Migration) Restore() error {
-	criuRoot := m.criuRoot()
+	criuRoot := m.CriuRoot()
 	options := criu.Options{
 		LazyPages:         false,
 		ImagePath:         criuRoot,

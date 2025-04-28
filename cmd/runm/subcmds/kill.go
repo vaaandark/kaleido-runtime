@@ -2,12 +2,21 @@ package subcmds
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/vaaandark/kaleido-runtime/pkg/kmsglog"
 	"github.com/vaaandark/kaleido-runtime/pkg/runm/migration"
 	"github.com/vaaandark/kaleido-runtime/pkg/runtimeutils"
 )
+
+func IsDirExist(path string) bool {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return !os.IsNotExist(err)
+	}
+	return fileInfo.IsDir()
+}
 
 func NewKillCommand() *cobra.Command {
 	// subcommand flags
@@ -41,6 +50,11 @@ func NewKillCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
+			if !IsDirExist(migration.CriuRoot()) {
+				return fmt.Errorf("criu root directory %s not exist", migration.CriuRoot())
+			}
+
 			if !shouldMigrate {
 				return fmt.Errorf("container %s need not to be migrated", containerInfo.Id)
 			}
