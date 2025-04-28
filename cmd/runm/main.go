@@ -34,9 +34,13 @@ func main() {
 	rootCmd.PersistentFlags().String("rootless", "auto", "ignore cgroup permission errors ('true', 'false', or 'auto')")
 
 	rootCmd.AddCommand(subcmds.NewCreateCommand())
+	rootCmd.AddCommand(subcmds.NewKillCommand())
 
-	if cmd, _, err := rootCmd.Find(runcArgs); err == nil && cmd.Use == "create" {
-		if err := rootCmd.Execute(); err == nil {
+	if cmd, _, err := rootCmd.Find(runcArgs); err == nil &&
+		(cmd.Use == "create" || cmd.Use == "kill") {
+		if err := rootCmd.Execute(); err != nil {
+			kmsglog.InfoF("Failed to execute runm: %v", err)
+		} else {
 			return
 		}
 	}

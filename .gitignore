@@ -24,4 +24,5 @@ go.work.sum
 # env file
 .env
 
-runm
+/runm
+_output

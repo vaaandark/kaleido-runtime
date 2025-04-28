@@ -19,7 +19,7 @@ func NewCreateCommand() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "create",
-		Short: "Create task from migration",
+		Short: "Create task from checkpoint",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			debug, _ := cmd.Root().Flags().GetBool("debug")
 			log, _ := cmd.Root().Flags().GetString("log")
@@ -34,7 +34,7 @@ func NewCreateCommand() *cobra.Command {
 				bundle, consoleSocket, pidFile, noPivot, noNewKeyring, preserveFds)
 
 			containerInfo := migration.NewContainerInfo(args[len(args)-1], bundle, root)
-			migration, shouldMigrate, err := migration.NewMigration(containerInfo)
+			migration, shouldMigrate, err := migration.NewMigration(containerInfo, migration.CreateAction)
 			if err != nil {
 				return err
 			}

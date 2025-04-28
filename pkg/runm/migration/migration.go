@@ -18,6 +18,13 @@ const (
 	runc = "runc"
 )
 
+type MigrationAction string
+
+const (
+	CreateAction = "create"
+	KillAction   = "kill"
+)
+
 const (
 	containerTypeAnnotation = "io.kubernetes.cri.container-type"
 	containerTypeSandbox    = "sandbox"
@@ -63,16 +70,24 @@ func containerCheckpointPath(podUid, containerName string) string {
 	return filepath.Join(podCheckpointPath(podUid), containerName)
 }
 
-func NewMigration(containerInfo *ContainerInfo) (info *Migration, shouldMigrate bool, err error) {
+func NewMigration(containerInfo *ContainerInfo, action MigrationAction) (info *Migration, shouldMigrate bool, err error) {
 	spec, err := loadRuntimeSpecFromBundle(containerInfo.Bundle)
 	if err != nil {
 		return nil, false, fmt.Errorf("failed to load runtime spec: %w", err)
 	}
 
-	sourcePodUid, exist := spec.Annotations[types.SourcePodAnnotation]
+	var podUid string
+	var exist bool
+	switch action {
+	case CreateAction:
+		podUid, exist = spec.Annotations[types.MigrationUidAnnotation]
+	case KillAction:
+		podUid, exist = spec.Annotations[types.SourceMigrationUidAnnotation]
+	}
 	if !exist {
 		return nil, false, nil
 	}
+
 	containerType, exist := spec.Annotations[containerTypeAnnotation]
 	if !exist || containerType != containerTypeContainer {
 		return nil, false, fmt.Errorf("container type not found in annotations or not container type")
@@ -84,7 +99,7 @@ func NewMigration(containerInfo *ContainerInfo) (info *Migration, shouldMigrate 
 	}
 
 	return &Migration{
-		SourcePodUid:  sourcePodUid,
+		SourcePodUid:  podUid,
 		ContainerName: containerName,
 		ContainerSpec: spec,
 		ContainerInfo: containerInfo,
@@ -98,6 +113,30 @@ func loadRuntimeSpecFromBundle(bundle string) (*specs.Spec, error) {
 
 func (m Migration) criuRoot() string {
 	return containerCheckpointPath(m.SourcePodUid, m.ContainerName)
+}
+
+func (m Migration) Checkpoint() error {
+	criuRoot := m.criuRoot()
+	var args []string
+	for _, arg := range os.Args[1 : len(os.Args)-1] {
+		if arg == "kill" {
+			args = append(args, "checkpoint")
+			args = append(args, "--image-path", criuRoot)
+		} else {
+			args = append(args, arg)
+		}
+	}
+	kmsglog.InfoF("checkpoint runc command: runc %v", args)
+
+	runcCmd := exec.Command(runc, args...)
+	runcCmd.Stdout = os.Stdout
+	runcCmd.Stderr = os.Stdin
+
+	if err := runcCmd.Run(); err != nil {
+		return fmt.Errorf("failed to run checkpoint command: %w", err)
+	}
+
+	return nil
 }
 
 func (m Migration) Restore() error {
